@@ -178,7 +178,11 @@ export async function handleMovieDetailsRequest(
   req: VercelRequest,
   res: VercelResponse
 ): Promise<void> {
-  const data = await fetchFromTmdb<TmdbMovieDetails>(req, res, "");
+  const data = await fetchFromTmdb<TmdbMovieDetails>(
+    req,
+    res,
+    "?append_to_response=credits"
+  );
   if (!data) {
     return;
   }

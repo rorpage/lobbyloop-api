@@ -37,9 +37,12 @@ The response key matches the endpoint name. `/api/logos/550` returns a
 `/api/movie/550` calls TMDB's plain movie details endpoint instead of
 the images endpoint, so it returns the full movie record: title,
 overview, release date, runtime, genres, budget, revenue, and so on.
-The two image fields in that response, `backdrop_path` and
-`poster_path`, are converted to full URLs the same way the other three
-endpoints are. Everything else is passed through from TMDB unchanged.
+It also includes a `credits` object (cast and crew), so director and
+producer names are available in `credits.crew` entries where `job` is
+`"Director"`, `"Producer"`, etc. The two image fields in that response,
+`backdrop_path` and `poster_path`, are converted to full URLs the same
+way the other three endpoints are. Everything else is passed through
+from TMDB unchanged.
 
 All endpoints return `original` size images.
 
