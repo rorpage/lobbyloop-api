@@ -79,6 +79,24 @@ function buildImageUrls(images: TmdbImage[]): string[] {
   return images.map((image) => buildImageUrl(image.file_path));
 }
 
+// Reads the optional minWidth query parameter. Returns null (no
+// filtering) if it is absent, a non-negative integer if valid, or
+// undefined if present but not a non-negative integer, so the caller
+// can tell an invalid value apart from a missing one.
+function extractMinWidth(req: VercelRequest): number | null | undefined {
+  const minWidthParam = req.query.minWidth;
+  if (minWidthParam === undefined) {
+    return null;
+  }
+
+  const rawValue = Array.isArray(minWidthParam) ? minWidthParam[0] : minWidthParam;
+  if (!/^\d+$/.test(rawValue)) {
+    return undefined;
+  }
+
+  return Number(rawValue);
+}
+
 // Validates the request and calls the given TMDB movie endpoint, where
 // tmdbPath is appended after /movie/{movieId}. Pass an empty string for
 // movie details, or "/images" for the images endpoint. Returns the
@@ -156,12 +174,24 @@ export async function handleImageRequest(
   res: VercelResponse,
   imageType: ImageType
 ): Promise<void> {
+  const minWidth = extractMinWidth(req);
+  if (minWidth === undefined) {
+    res.status(400).json({
+      error: "minWidth must be a non-negative integer.",
+    });
+    return;
+  }
+
   const data = await fetchFromTmdb<TmdbImagesResponse>(req, res, "/images");
   if (!data) {
     return;
   }
 
-  const images = buildImageUrls(data[imageType]);
+  const filteredImages =
+    minWidth === null
+      ? data[imageType]
+      : data[imageType].filter((image) => image.width >= minWidth);
+  const images = buildImageUrls(filteredImages);
 
   res.status(200).json({
     movieId: data.id,
