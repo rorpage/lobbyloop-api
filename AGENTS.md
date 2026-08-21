@@ -55,6 +55,16 @@ unauthorized caller never reaches TMDB. The check lives in
 server, every request fails with a 500 rather than silently allowing
 unauthenticated access.
 
+## Filtering by width
+
+The three image endpoints accept an optional `minWidth` query
+parameter. `extractMinWidth` in `api/_lib/tmdb.ts` reads it: `null`
+means it was absent (no filtering), a number means filter out images
+narrower than that, and `undefined` means it was present but not a
+non-negative integer, which `handleImageRequest` turns into a 400
+response. Filtering happens against the raw `width` field from TMDB,
+before `buildImageUrls` converts the images to full URLs.
+
 ## Image sizes
 
 All endpoints return `original` size images. This was a deliberate

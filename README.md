@@ -34,6 +34,13 @@ Example response:
 The response key matches the endpoint name. `/api/logos/550` returns a
 `logos` array, and `/api/posters/550` returns a `posters` array.
 
+The three image endpoints (`backdrops`, `logos`, `posters`) accept an
+optional `minWidth` query parameter to filter out images narrower than
+that width in pixels. For example, `/api/backdrops/550?minWidth=1920`
+returns only backdrops that are at least 1920 pixels wide, useful for
+filtering out small images that would look poor on a large display.
+`minWidth` must be a non-negative integer if provided.
+
 `/api/movie/550` calls TMDB's plain movie details endpoint instead of
 the images endpoint, so it returns the full movie record: title,
 overview, release date, runtime, genres, budget, revenue, and so on.
@@ -92,7 +99,8 @@ curl -H "x-api-token: your_own_secret_token_here" http://localhost:3000/api/back
 
 ## Errors
 
-- `400`: `movieId` is missing or not a positive integer.
+- `400`: `movieId` is missing or not a positive integer, or `minWidth`
+  is present but not a non-negative integer.
 - `401`: the `x-api-token` header is missing or does not match `API_TOKEN`.
 - `404`: no movie exists for that ID.
 - `405`: request method other than GET.
